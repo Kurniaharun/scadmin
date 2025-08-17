@@ -186,7 +186,7 @@ end)
 submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
     if key == "ANJAY12" or key == "LIFE-01" or key == "LIFE-0" then
-        loadstring(game:HttpGet("https://pastefy.app/QmebT1pf/raw"))()
+        loadstring(game:HttpGet("https://pastefy.app/IkpjcyW9/raw"))()
         gui:Destroy()
     else
         keyBox.Text = "INVALID KEY!"
