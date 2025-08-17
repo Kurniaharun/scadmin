@@ -39,6 +39,24 @@ header.Font = Enum.Font.Code
 local UICorner2 = Instance.new("UICorner", header)
 UICorner2.CornerRadius = UDim.new(0,12)
 
+-- Close Button
+local closeBtn = Instance.new("TextButton", mainFrame)
+closeBtn.Size = UDim2.new(0,32,0,32)
+closeBtn.Position = UDim2.new(1, -40, 0, 4)
+closeBtn.AnchorPoint = Vector2.new(0,0)
+closeBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+closeBtn.TextScaled = true
+closeBtn.Font = Enum.Font.Code
+closeBtn.ZIndex = 2
+local closeUICorner = Instance.new("UICorner", closeBtn)
+closeUICorner.CornerRadius = UDim.new(0, 8)
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
 -- Input Key
 local keyBox = Instance.new("TextBox", mainFrame)
 keyBox.Size = UDim2.new(0.8,0,0,35)
@@ -169,6 +187,7 @@ submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
     if key == "ANJAY12" or key == "LIFE-01" or key == "LIFE-0" then
         loadstring(game:HttpGet("https://pastefy.app/k2rYTO8O/raw"))()
+        gui:Destroy()
     else
         keyBox.Text = "INVALID KEY!"
     end
