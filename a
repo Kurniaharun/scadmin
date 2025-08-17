@@ -4,7 +4,7 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
 -- Valid keys
-local VALID_KEYS = {"FREE1", "LIFE-0"}
+local VALID_KEYS = {"FREE1", "LIFE-01", "LIFE-0"}
 
 -- Create main UI
 local ScreenGui = Instance.new("ScreenGui")
