@@ -1,0 +1,279 @@
+-- Key Gateway Script
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+-- Valid keys
+local VALID_KEYS = {"FREE1", "LIFE-0"}
+
+-- Create main UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "KeyGatewayUI"
+ScreenGui.Parent = game:GetService("CoreGui")
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 400, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 15)
+MainCorner.Parent = MainFrame
+
+-- Title
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, 0, 0, 60)
+TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "🔑 KEY GATEWAY"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextScaled = true
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Parent = MainFrame
+
+-- Key Input
+local KeyInput = Instance.new("TextBox")
+KeyInput.Size = UDim2.new(0.8, 0, 0, 50)
+KeyInput.Position = UDim2.new(0.1, 0, 0.25, 0)
+KeyInput.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+KeyInput.BorderSizePixel = 0
+KeyInput.Text = ""
+KeyInput.PlaceholderText = "Enter your key here..."
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.TextScaled = true
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.Parent = MainFrame
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 10)
+InputCorner.Parent = KeyInput
+
+-- Submit Button
+local SubmitButton = Instance.new("TextButton")
+SubmitButton.Size = UDim2.new(0.6, 0, 0, 50)
+SubmitButton.Position = UDim2.new(0.2, 0, 0.4, 0)
+SubmitButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+SubmitButton.BorderSizePixel = 0
+SubmitButton.Text = "SUBMIT"
+SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitButton.TextScaled = true
+SubmitButton.Font = Enum.Font.GothamBold
+SubmitButton.Parent = MainFrame
+
+local SubmitCorner = Instance.new("UICorner")
+SubmitCorner.CornerRadius = UDim.new(0, 10)
+SubmitCorner.Parent = SubmitButton
+
+-- Get Key Button
+local GetKeyButton = Instance.new("TextButton")
+GetKeyButton.Size = UDim2.new(0.6, 0, 0, 50)
+GetKeyButton.Position = UDim2.new(0.2, 0, 0.55, 0)
+GetKeyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+GetKeyButton.BorderSizePixel = 0
+GetKeyButton.Text = "GET KEY"
+GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+GetKeyButton.TextScaled = true
+GetKeyButton.Font = Enum.Font.GothamBold
+GetKeyButton.Parent = MainFrame
+
+local GetKeyCorner = Instance.new("UICorner")
+GetKeyCorner.CornerRadius = UDim.new(0, 10)
+GetKeyCorner.Parent = GetKeyButton
+
+-- Buy Premium Button
+local BuyPremiumButton = Instance.new("TextButton")
+BuyPremiumButton.Size = UDim2.new(0.6, 0, 0, 50)
+BuyPremiumButton.Position = UDim2.new(0.2, 0, 0.7, 0)
+BuyPremiumButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+BuyPremiumButton.BorderSizePixel = 0
+BuyPremiumButton.Text = "BUY PREMIUM"
+BuyPremiumButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+BuyPremiumButton.TextScaled = true
+BuyPremiumButton.Font = Enum.Font.GothamBold
+BuyPremiumButton.Parent = MainFrame
+
+local BuyPremiumCorner = Instance.new("UICorner")
+BuyPremiumCorner.CornerRadius = UDim.new(0, 10)
+BuyPremiumCorner.Parent = BuyPremiumButton
+
+-- Status Label
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(0.8, 0, 0, 30)
+StatusLabel.Position = UDim2.new(0.1, 0, 0.75, 0)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "Ready to validate key"
+StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+StatusLabel.TextScaled = true
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Parent = MainFrame
+
+-- Premium Purchase UI
+local PremiumUI = Instance.new("Frame")
+PremiumUI.Size = UDim2.new(0, 450, 0, 400)
+PremiumUI.Position = UDim2.new(0.5, -225, 0.5, -200)
+PremiumUI.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+PremiumUI.BorderSizePixel = 0
+PremiumUI.Parent = ScreenGui
+PremiumUI.Visible = false
+
+local PremiumCorner = Instance.new("UICorner")
+PremiumCorner.CornerRadius = UDim.new(0, 15)
+PremiumCorner.Parent = PremiumUI
+
+-- Premium Title
+local PremiumTitle = Instance.new("TextLabel")
+PremiumTitle.Size = UDim2.new(1, 0, 0, 60)
+PremiumTitle.Position = UDim2.new(0, 0, 0, 0)
+PremiumTitle.BackgroundTransparency = 1
+PremiumTitle.Text = "💎 PREMIUM PURCHASE"
+PremiumTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+PremiumTitle.TextScaled = true
+PremiumTitle.Font = Enum.Font.GothamBold
+PremiumTitle.Parent = PremiumUI
+
+-- WhatsApp Info
+local WhatsAppLabel = Instance.new("TextLabel")
+WhatsAppLabel.Size = UDim2.new(1, 0, 0, 40)
+WhatsAppLabel.Position = UDim2.new(0, 0, 0.2, 0)
+WhatsAppLabel.BackgroundTransparency = 1
+WhatsAppLabel.Text = "BELI VIA WHATSAPP"
+WhatsAppLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+WhatsAppLabel.TextScaled = true
+WhatsAppLabel.Font = Enum.Font.GothamBold
+WhatsAppLabel.Parent = PremiumUI
+
+-- Phone Number
+local PhoneLabel = Instance.new("TextLabel")
+PhoneLabel.Size = UDim2.new(1, 0, 0, 40)
+PhoneLabel.Position = UDim2.new(0, 0, 0.35, 0)
+PhoneLabel.BackgroundTransparency = 1
+PhoneLabel.Text = "082281712356"
+PhoneLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PhoneLabel.TextScaled = true
+PhoneLabel.Font = Enum.Font.GothamBold
+PhoneLabel.Parent = PremiumUI
+
+-- Copy Button
+local CopyButton = Instance.new("TextButton")
+CopyButton.Size = UDim2.new(0.4, 0, 0, 40)
+CopyButton.Position = UDim2.new(0.3, 0, 0.5, 0)
+CopyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+CopyButton.BorderSizePixel = 0
+CopyButton.Text = "COPY"
+CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CopyButton.TextScaled = true
+CopyButton.Font = Enum.Font.GothamBold
+CopyButton.Parent = PremiumUI
+
+local CopyCorner = Instance.new("UICorner")
+CopyCorner.CornerRadius = UDim.new(0, 10)
+CopyCorner.Parent = CopyButton
+
+-- Price Info
+local PriceLabel = Instance.new("TextLabel")
+PriceLabel.Size = UDim2.new(1, 0, 0, 40)
+PriceLabel.Position = UDim2.new(0, 0, 0.65, 0)
+PriceLabel.BackgroundTransparency = 1
+PriceLabel.Text = "HARGA: 10k IDR LIFETIME"
+PriceLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+PriceLabel.TextScaled = true
+PriceLabel.Font = Enum.Font.GothamBold
+PriceLabel.Parent = PremiumUI
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0.3, 0, 0, 40)
+CloseButton.Position = UDim2.new(0.35, 0, 0.8, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "CLOSE"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextScaled = true
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = PremiumUI
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 10)
+CloseCorner.Parent = CloseButton
+
+-- Functions
+local function validateKey(key)
+    for _, validKey in pairs(VALID_KEYS) do
+        if key == validKey then
+            return true
+        end
+    end
+    return false
+end
+
+local function executeScript()
+    StatusLabel.Text = "✅ Key valid! Loading script..."
+    StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    
+    repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+    
+    local success, error = pcall(function()
+        loadstring(game:HttpGet("https://pastefy.app/gPOwlw5K/raw"))()
+    end)
+    
+    if success then
+        StatusLabel.Text = "✅ Script loaded successfully!"
+        wait(2)
+        ScreenGui:Destroy()
+    else
+        StatusLabel.Text = "❌ Error loading script"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    end
+end
+
+local function copyToClipboard(text)
+    if setclipboard then
+        setclipboard(text)
+        CopyButton.Text = "COPIED!"
+        wait(1)
+        CopyButton.Text = "COPY"
+    end
+end
+
+-- Button Events
+SubmitButton.MouseButton1Click:Connect(function()
+    local key = KeyInput.Text
+    if key == "" then
+        StatusLabel.Text = "❌ Please enter a key!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
+    
+    if validateKey(key) then
+        executeScript()
+    else
+        StatusLabel.Text = "❌ Invalid key! Please try again."
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    end
+end)
+
+BuyPremiumButton.MouseButton1Click:Connect(function()
+    PremiumUI.Visible = true
+end)
+
+CopyButton.MouseButton1Click:Connect(function()
+    copyToClipboard("082281712356")
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    PremiumUI.Visible = false
+end)
+
+-- Enter key to submit
+KeyInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        SubmitButton.MouseButton1Click:Fire()
+    end
+end)
+
+print("🔑 Key Gateway Script Loaded!")
+
