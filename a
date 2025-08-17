@@ -1,1114 +1,292 @@
--- UNIVERSAL SCRIPT ROBLOX LUA (UI iPhone Modern, Mirip Gambar Kedua)
--- Semua UI lama dihapus, UI baru dibuat dari awal
-
---[[
-  Fitur:
-    - GET ADMIN (Display Admin diatas kepala)
-    - TP TO PLAYER (input username + button)
-    - Fly Mode ON/OFF Toggle (360 derajat, WASD)
-    - Infinite Jump ON/OFF
-    - NoClip ON/OFF
-    - Sit ON/OFF (FE, visible untuk orang lain)
-    - Spin ON/OFF
-    - Walkspeed Changer (original 16, input bebas)
-    - Fly Speed Changer
-    - ESP Name (realtime)
-    - Spy Feature (input username + spy now + stop spy)
-    - Load Infinite Yield
-]]
-
+-- Key Gateway Script
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
 
--- Hapus semua UI lama
-for _,v in ipairs(game.CoreGui:GetChildren()) do
-    if v.Name == "UniversalScriptUI" then v:Destroy() end
-end
+-- Valid keys
+local VALID_KEYS = {"FREE1", "LIFE-0"}
 
--- UI Baru
+-- Create main UI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "UniversalScriptUI"
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ResetOnSpawn = false
+ScreenGui.Name = "KeyGatewayUI"
+ScreenGui.Parent = game:GetService("CoreGui")
 
--- Main Frame (iPhone style)
+-- Main Frame
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 280, 0, 520)
-MainFrame.Position = UDim2.new(0, 60, 0, 100)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 400, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
-MainFrame.Active = true
-MainFrame.Draggable = true
 
--- Shadow
-local shadow = Instance.new("ImageLabel")
-shadow.Name = "Shadow"
-shadow.Image = "rbxassetid://1316045217"
-shadow.ImageTransparency = 0.6
-shadow.Size = UDim2.new(1, 30, 1, 30)
-shadow.Position = UDim2.new(0, -15, 0, -15)
-shadow.BackgroundTransparency = 1
-shadow.Parent = MainFrame
-shadow.ZIndex = 0
-MainFrame.ZIndex = 1
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 15)
+MainCorner.Parent = MainFrame
 
--- UICorner
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 20)
-corner.Parent = MainFrame
+-- Title
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, 0, 0, 60)
+TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "🔑 KEY GATEWAY"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextScaled = true
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Parent = MainFrame
 
--- Judul
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 50)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-Title.Text = "ADMIN SCRIPT"
-Title.TextColor3 = Color3.fromRGB(255,255,255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 24
-Title.TextStrokeTransparency = 0.8
-Title.TextYAlignment = Enum.TextYAlignment.Center
-Title.Parent = MainFrame
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 20)
-titleCorner.Parent = Title
+-- Key Input
+local KeyInput = Instance.new("TextBox")
+KeyInput.Size = UDim2.new(0.8, 0, 0, 50)
+KeyInput.Position = UDim2.new(0.1, 0, 0.25, 0)
+KeyInput.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+KeyInput.BorderSizePixel = 0
+KeyInput.Text = ""
+KeyInput.PlaceholderText = "Enter your key here..."
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.TextScaled = true
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.Parent = MainFrame
 
--- Minimize Button
-local MinBtn = Instance.new("TextButton")
-MinBtn.Size = UDim2.new(0, 35, 0, 35)
-MinBtn.Position = UDim2.new(1, -45, 0, 7.5)
-MinBtn.BackgroundColor3 = Color3.fromRGB(70,70,85)
-MinBtn.TextColor3 = Color3.fromRGB(255,255,255)
-MinBtn.Font = Enum.Font.GothamBold
-MinBtn.TextSize = 24
-MinBtn.Text = "-"
-MinBtn.Parent = MainFrame
-MinBtn.ZIndex = 10
-local minCorner = Instance.new("UICorner")
-minCorner.CornerRadius = UDim.new(1,0)
-minCorner.Parent = MinBtn
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 10)
+InputCorner.Parent = KeyInput
 
--- Floating Show Button (hidden by default)
-local ShowBtn = Instance.new("TextButton")
-ShowBtn.Size = UDim2.new(0, 45, 0, 45)
-ShowBtn.Position = UDim2.new(0, 16, 0, 16)
-ShowBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-ShowBtn.Text = "≡"
-ShowBtn.TextColor3 = Color3.fromRGB(255,255,255)
-ShowBtn.Font = Enum.Font.GothamBold
-ShowBtn.TextSize = 30
-ShowBtn.Visible = false
-ShowBtn.Parent = ScreenGui
-local showCorner = Instance.new("UICorner")
-showCorner.CornerRadius = UDim.new(1,0)
-showCorner.Parent = ShowBtn
+-- Submit Button
+local SubmitButton = Instance.new("TextButton")
+SubmitButton.Size = UDim2.new(0.6, 0, 0, 50)
+SubmitButton.Position = UDim2.new(0.2, 0, 0.4, 0)
+SubmitButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+SubmitButton.BorderSizePixel = 0
+SubmitButton.Text = "SUBMIT"
+SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitButton.TextScaled = true
+SubmitButton.Font = Enum.Font.GothamBold
+SubmitButton.Parent = MainFrame
 
-MinBtn.MouseButton1Click:Connect(function()
-    MainFrame.Visible = false
-    ShowBtn.Visible = true
-end)
-ShowBtn.MouseButton1Click:Connect(function()
-    MainFrame.Visible = true
-    ShowBtn.Visible = false
-end)
+local SubmitCorner = Instance.new("UICorner")
+SubmitCorner.CornerRadius = UDim.new(0, 10)
+SubmitCorner.Parent = SubmitButton
 
--- SCROLLING FRAME
-local Scroll = Instance.new("ScrollingFrame")
-Scroll.Size = UDim2.new(1, 0, 1, -56)
-Scroll.Position = UDim2.new(0, 0, 0, 50)
-Scroll.BackgroundTransparency = 1
-Scroll.BorderSizePixel = 0
-Scroll.CanvasSize = UDim2.new(0,0,0,600)
-Scroll.ScrollBarThickness = 8
-Scroll.Parent = MainFrame
-Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Scroll.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+-- Get Key Button
+local GetKeyButton = Instance.new("TextButton")
+GetKeyButton.Size = UDim2.new(0.6, 0, 0, 50)
+GetKeyButton.Position = UDim2.new(0.2, 0, 0.55, 0)
+GetKeyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+GetKeyButton.BorderSizePixel = 0
+GetKeyButton.Text = "GET KEY"
+GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+GetKeyButton.TextScaled = true
+GetKeyButton.Font = Enum.Font.GothamBold
+GetKeyButton.Parent = MainFrame
 
--- Inisialisasi y setelah Scroll
-local y = 0
-local spacing = 48
+local GetKeyCorner = Instance.new("UICorner")
+GetKeyCorner.CornerRadius = UDim.new(0, 10)
+GetKeyCorner.Parent = GetKeyButton
 
--- Helper: Separator
-local function createSeparator(y)
-    local sep = Instance.new("Frame")
-    sep.Size = UDim2.new(1, -40, 0, 2)
-    sep.Position = UDim2.new(0, 20, 0, y)
-    sep.BackgroundColor3 = Color3.fromRGB(70,70,85)
-    sep.BorderSizePixel = 0
-    sep.Parent = Scroll
-    sep.ZIndex = 2
-end
+-- Buy Premium Button
+local BuyPremiumButton = Instance.new("TextButton")
+BuyPremiumButton.Size = UDim2.new(0.6, 0, 0, 50)
+BuyPremiumButton.Position = UDim2.new(0.2, 0, 0.7, 0)
+BuyPremiumButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+BuyPremiumButton.BorderSizePixel = 0
+BuyPremiumButton.Text = "BUY PREMIUM"
+BuyPremiumButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+BuyPremiumButton.TextScaled = true
+BuyPremiumButton.Font = Enum.Font.GothamBold
+BuyPremiumButton.Parent = MainFrame
 
--- Helper: Buat tombol besar dengan toggle/checkbox
-local function createToggle(text, state, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 230, 0, 40)
-    btn.Position = UDim2.new(0, 25, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
-    btn.Text = ""
-    btn.AutoButtonColor = false
-    btn.Parent = Scroll
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 18
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.ZIndex = 2
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 15)
-    corner.Parent = btn
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -50, 1, 0)
-    lbl.Position = UDim2.new(0, 15, 0, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 18
-    lbl.TextColor3 = Color3.fromRGB(255,255,255)
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = btn
-    lbl.ZIndex = 3
-    local box = Instance.new("Frame")
-    box.Size = UDim2.new(0, 28, 0, 28)
-    box.Position = UDim2.new(1, -38, 0.5, -14)
-    box.BackgroundColor3 = state and Color3.fromRGB(0,220,90) or Color3.fromRGB(70,70,85)
-    box.Parent = btn
-    box.ZIndex = 3
-    local boxCorner = Instance.new("UICorner")
-    boxCorner.CornerRadius = UDim.new(1,0)
-    boxCorner.Parent = box
-    local check = Instance.new("TextLabel")
-    check.Size = UDim2.new(1,0,1,0)
-    check.BackgroundTransparency = 1
-    check.Text = state and "✓" or ""
-    check.TextColor3 = Color3.fromRGB(255,255,255)
-    check.Font = Enum.Font.GothamBold
-    check.TextSize = 20
-    check.Parent = box
-    check.ZIndex = 4
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        box.BackgroundColor3 = state and Color3.fromRGB(0,220,90) or Color3.fromRGB(70,70,85)
-        check.Text = state and "✓" or ""
-        callback(state)
-    end)
-    y = y + spacing
-    createSeparator(y-6)
-    return btn, function(val)
-        state = val
-        box.BackgroundColor3 = state and Color3.fromRGB(0,220,90) or Color3.fromRGB(70,70,85)
-        check.Text = state and "✓" or ""
+local BuyPremiumCorner = Instance.new("UICorner")
+BuyPremiumCorner.CornerRadius = UDim.new(0, 10)
+BuyPremiumCorner.Parent = BuyPremiumButton
+
+-- Status Label
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(0.8, 0, 0, 30)
+StatusLabel.Position = UDim2.new(0.1, 0, 0.75, 0)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = ""
+StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+StatusLabel.TextScaled = true
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Parent = MainFrame
+
+-- Premium Purchase UI
+local PremiumUI = Instance.new("Frame")
+PremiumUI.Size = UDim2.new(0, 450, 0, 400)
+PremiumUI.Position = UDim2.new(0.5, -225, 0.5, -200)
+PremiumUI.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+PremiumUI.BorderSizePixel = 0
+PremiumUI.Parent = ScreenGui
+PremiumUI.Visible = false
+
+local PremiumCorner = Instance.new("UICorner")
+PremiumCorner.CornerRadius = UDim.new(0, 15)
+PremiumCorner.Parent = PremiumUI
+
+-- Premium Title
+local PremiumTitle = Instance.new("TextLabel")
+PremiumTitle.Size = UDim2.new(1, 0, 0, 60)
+PremiumTitle.Position = UDim2.new(0, 0, 0, 0)
+PremiumTitle.BackgroundTransparency = 1
+PremiumTitle.Text = "💎 PREMIUM PURCHASE"
+PremiumTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+PremiumTitle.TextScaled = true
+PremiumTitle.Font = Enum.Font.GothamBold
+PremiumTitle.Parent = PremiumUI
+
+-- WhatsApp Info
+local WhatsAppLabel = Instance.new("TextLabel")
+WhatsAppLabel.Size = UDim2.new(1, 0, 0, 40)
+WhatsAppLabel.Position = UDim2.new(0, 0, 0.2, 0)
+WhatsAppLabel.BackgroundTransparency = 1
+WhatsAppLabel.Text = "BELI VIA WHATSAPP"
+WhatsAppLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+WhatsAppLabel.TextScaled = true
+WhatsAppLabel.Font = Enum.Font.GothamBold
+WhatsAppLabel.Parent = PremiumUI
+
+-- Phone Number
+local PhoneLabel = Instance.new("TextLabel")
+PhoneLabel.Size = UDim2.new(1, 0, 0, 40)
+PhoneLabel.Position = UDim2.new(0, 0, 0.35, 0)
+PhoneLabel.BackgroundTransparency = 1
+PhoneLabel.Text = "082281712356"
+PhoneLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PhoneLabel.TextScaled = true
+PhoneLabel.Font = Enum.Font.GothamBold
+PhoneLabel.Parent = PremiumUI
+
+-- Copy Button
+local CopyButton = Instance.new("TextButton")
+CopyButton.Size = UDim2.new(0.4, 0, 0, 40)
+CopyButton.Position = UDim2.new(0.3, 0, 0.5, 0)
+CopyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+CopyButton.BorderSizePixel = 0
+CopyButton.Text = "COPY"
+CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CopyButton.TextScaled = true
+CopyButton.Font = Enum.Font.GothamBold
+CopyButton.Parent = PremiumUI
+
+local CopyCorner = Instance.new("UICorner")
+CopyCorner.CornerRadius = UDim.new(0, 10)
+CopyCorner.Parent = CopyButton
+
+-- Price Info
+local PriceLabel = Instance.new("TextLabel")
+PriceLabel.Size = UDim2.new(1, 0, 0, 40)
+PriceLabel.Position = UDim2.new(0, 0, 0.65, 0)
+PriceLabel.BackgroundTransparency = 1
+PriceLabel.Text = "HARGA: 10k IDR LIFETIME"
+PriceLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+PriceLabel.TextScaled = true
+PriceLabel.Font = Enum.Font.GothamBold
+PriceLabel.Parent = PremiumUI
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0.3, 0, 0, 40)
+CloseButton.Position = UDim2.new(0.35, 0, 0.8, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "CLOSE"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextScaled = true
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = PremiumUI
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 10)
+CloseCorner.Parent = CloseButton
+
+-- Functions
+local function validateKey(key)
+    for _, validKey in pairs(VALID_KEYS) do
+        if key == validKey then
+            return true
+        end
     end
+    return false
 end
 
--- Helper: Buat tombol besar biasa
-local function createButton(text, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 230, 0, 40)
-    btn.Position = UDim2.new(0, 25, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
-    btn.Text = text
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 18
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.AutoButtonColor = true
-    btn.Parent = Scroll
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 15)
-    corner.Parent = btn
-    btn.MouseButton1Click:Connect(callback)
-    y = y + spacing
-    createSeparator(y-6)
-    return btn
-end
-
--- Helper: Buat tombol input pop-up
-local function createInputButton(text, default, onSet)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 230, 0, 40)
-    btn.Position = UDim2.new(0, 25, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
-    btn.Text = text..": "..tostring(default)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 18
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.AutoButtonColor = true
-    btn.Parent = Scroll
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 15)
-    corner.Parent = btn
-    btn.MouseButton1Click:Connect(function()
-        local input = Instance.new("TextBox")
-        input.Size = UDim2.new(0, 140, 0, 35)
-        input.Position = UDim2.new(0.5, -70, 0.5, -17.5)
-        input.BackgroundColor3 = Color3.fromRGB(255,255,255)
-        input.TextColor3 = Color3.fromRGB(30,30,30)
-        input.Font = Enum.Font.Gotham
-        input.TextSize = 18
-        input.Text = ""
-        input.PlaceholderText = "Enter value..."
-        input.Parent = MainFrame
-        input.ClearTextOnFocus = true
-        input.ZIndex = 10
-        local icorner = Instance.new("UICorner")
-        icorner.CornerRadius = UDim.new(0, 10)
-        icorner.Parent = input
-        input.FocusLost:Connect(function(enter)
-            if enter then
-                local val = tonumber(input.Text)
-                if val then
-                    btn.Text = text..": "..tostring(val)
-                    onSet(val)
-                end
-                input:Destroy()
-            end
-        end)
-        input:CaptureFocus()
-    end)
-    y = y + spacing
-    createSeparator(y-6)
-    return btn
-end
-
--- Helper: Buat input username + button
-local function createUsernameInput(text, buttonText, callback)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 230, 0, 75)
-    frame.Position = UDim2.new(0, 25, 0, y)
-    frame.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
-    frame.Parent = Scroll
-    frame.ZIndex = 2
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 15)
-    corner.Parent = frame
+local function executeScript()
+    StatusLabel.Text = "✅ Key valid! Loading script..."
+    StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
     
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, 0, 0, 22)
-    lbl.Position = UDim2.new(0, 0, 0, 5)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 15
-    lbl.TextColor3 = Color3.fromRGB(255,255,255)
-    lbl.Parent = frame
-    lbl.ZIndex = 3
+    repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
     
-    local input = Instance.new("TextBox")
-    input.Size = UDim2.new(1, -100, 0, 28)
-    input.Position = UDim2.new(0, 10, 0, 28)
-    input.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
-    input.TextColor3 = Color3.fromRGB(255,255,255)
-    input.Font = Enum.Font.Gotham
-    input.TextSize = 15
-    input.PlaceholderText = "Username"
-    input.Text = ""
-    input.ClearTextOnFocus = true
-    input.Parent = frame
-    input.ZIndex = 3
-    local inputCorner = Instance.new("UICorner")
-    inputCorner.CornerRadius = UDim.new(0, 8)
-    inputCorner.Parent = input
-    
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 80, 0, 28)
-    btn.Position = UDim2.new(1, -90, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    btn.Text = buttonText
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 14
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.Parent = frame
-    btn.ZIndex = 3
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 8)
-    btnCorner.Parent = btn
-    
-    btn.MouseButton1Click:Connect(function()
-        callback(input.Text)
+    local success, error = pcall(function()
+        loadstring(game:HttpGet("https://pastefy.app/gPOwlw5K/raw"))()
     end)
     
-    y = y + 75
-    createSeparator(y-6)
-    return input, btn
+    if success then
+        StatusLabel.Text = "✅ Script loaded successfully!"
+        wait(2)
+        ScreenGui:Destroy()
+    else
+        StatusLabel.Text = "❌ Error loading script"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    end
 end
 
--- State
-local walkspeed, flyspeed = 16, 60
-local infJump, fly, noclip, espName, sit, spin = false, false, false, false, false, false
-local adminDisplay = false
-local spyTarget = nil
-local spyConnection = nil
-local antiAfk = false
-local playerList = false
-local lightingOrb = false
-
--- GET ADMIN Display
-createToggle("GET ADMIN Display", adminDisplay, function(val) 
-    adminDisplay = val 
-    if adminDisplay then
-        -- Create admin display above local player
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head") then
-            local bill = Instance.new("BillboardGui", LocalPlayer.Character.Head)
-            bill.Name = "AdminDisplay"
-            bill.Size = UDim2.new(0,120,0,50)
-            bill.AlwaysOnTop = true
-            bill.StudsOffset = Vector3.new(0, 4, 0) -- Position higher above head
-            local txt = Instance.new("TextLabel", bill)
-            txt.Size = UDim2.new(1,0,1,0)
-            txt.BackgroundTransparency = 1
-            txt.TextColor3 = Color3.fromRGB(255, 0, 0)
-            txt.Text = "ADMIN"
-            txt.Font = Enum.Font.GothamBold
-            txt.TextSize = 20
-            txt.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-            txt.TextStrokeTransparency = 0
-        end
-    else
-        -- Remove admin display
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head") then
-            local bill = LocalPlayer.Character.Head:FindFirstChild("AdminDisplay")
-            if bill then bill:Destroy() end
-        end
+local function copyToClipboard(text)
+    if setclipboard then
+        setclipboard(text)
+        CopyButton.Text = "COPIED!"
+        wait(1)
+        CopyButton.Text = "COPY"
     end
-end)
+end
 
--- Lighting Orb Feature
-createToggle("Lighting Orb", lightingOrb, function(val)
-    lightingOrb = val
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head") then
-        local head = LocalPlayer.Character.Head
-        
-        if lightingOrb then
-            -- Create lighting orb
-            local orb = Instance.new("Part")
-            orb.Name = "LightingOrb"
-            orb.Shape = Enum.PartType.Ball
-            orb.Size = Vector3.new(2, 2, 2)
-            orb.Position = head.Position + Vector3.new(0, 3, 0)
-            orb.Anchored = true
-            orb.CanCollide = false
-            orb.Transparency = 0.3
-            orb.Material = Enum.Material.Neon
-            orb.Color = Color3.fromRGB(255, 255, 200) -- Bright yellow-white
-            orb.Parent = Workspace
-            
-            -- Create point light for illumination
-            local pointLight = Instance.new("PointLight")
-            pointLight.Name = "OrbLight"
-            pointLight.Brightness = 3
-            pointLight.Range = 50
-            pointLight.Color = Color3.new(1, 1, 0.8) -- Bright white-yellow
-            pointLight.Parent = orb
-            
-            -- Create surface light for additional illumination
-            local surfaceLight = Instance.new("SurfaceLight")
-            surfaceLight.Name = "OrbSurfaceLight"
-            surfaceLight.Brightness = 2
-            surfaceLight.Range = 40
-            surfaceLight.Color = Color3.new(1, 1, 0.9)
-            surfaceLight.Parent = orb
-            
-            -- Store orb reference
-            head:SetAttribute("LightingOrb", orb)
-            
-            -- Create connection to follow player
-            local followConnection
-            followConnection = RunService.RenderStepped:Connect(function()
-                if head and head.Parent and orb and orb.Parent then
-                    orb.Position = head.Position + Vector3.new(0, 3, 0)
-                else
-                    if followConnection then
-                        followConnection:Disconnect()
-                    end
-                end
-            end)
-            
-            -- Store connection for cleanup
-            orb:SetAttribute("FollowConnection", followConnection)
-            
-        else
-            -- Remove lighting orb
-            local orb = head:GetAttribute("LightingOrb")
-            if orb and orb.Parent then
-                local followConnection = orb:GetAttribute("FollowConnection")
-                if followConnection then
-                    followConnection:Disconnect()
-                end
-                orb:Destroy()
-            end
-            head:SetAttribute("LightingOrb", nil)
-        end
+local function getKeyFromURL()
+    if setclipboard then
+        setclipboard("https://sfl.gl/dkD08VUb")
+        GetKeyButton.Text = "COPIED!"
+        wait(2)
+        GetKeyButton.Text = "GET KEY"
     end
-end)
+end
 
--- Anti-AFK
-createToggle("Anti-AFK", antiAfk, function(val)
-    antiAfk = val
-    if antiAfk then
-        -- Create anti-afk connection
-        local antiAfkConnection
-        antiAfkConnection = RunService.Heartbeat:Connect(function()
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                LocalPlayer.Character.Humanoid:Move(Vector3.new(0, 0, 0))
-            end
-        end)
-        -- Store connection for later cleanup
-        if LocalPlayer.Character then
-            LocalPlayer.Character:SetAttribute("AntiAfkConnection", antiAfkConnection)
-        end
-    else
-        -- Remove anti-afk connection
-        if LocalPlayer.Character then
-            local connection = LocalPlayer.Character:GetAttribute("AntiAfkConnection")
-            if connection then
-                connection:Disconnect()
-                LocalPlayer.Character:SetAttribute("AntiAfkConnection", nil)
-            end
-        end
-    end
-end)
-
--- Player List
-createToggle("Player List", playerList, function(val)
-    playerList = val
-    if playerList then
-        -- Create player list UI
-        local playerListFrame = Instance.new("Frame")
-        playerListFrame.Name = "PlayerListFrame"
-        playerListFrame.Size = UDim2.new(0, 200, 0, 300)
-        playerListFrame.Position = UDim2.new(1, -220, 0, 100)
-        playerListFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-        playerListFrame.BorderSizePixel = 0
-        playerListFrame.Parent = ScreenGui
-        playerListFrame.ZIndex = 5
-        
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 15)
-        corner.Parent = playerListFrame
-        
-        local title = Instance.new("TextLabel")
-        title.Size = UDim2.new(1, 0, 0, 30)
-        title.Position = UDim2.new(0, 0, 0, 0)
-        title.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-        title.Text = "PLAYER LIST"
-        title.TextColor3 = Color3.fromRGB(255,255,255)
-        title.Font = Enum.Font.GothamBold
-        title.TextSize = 16
-        title.Parent = playerListFrame
-        title.ZIndex = 6
-        
-        local titleCorner = Instance.new("UICorner")
-        titleCorner.CornerRadius = UDim.new(0, 15)
-        titleCorner.Parent = title
-        
-        local scroll = Instance.new("ScrollingFrame")
-        scroll.Size = UDim2.new(1, 0, 1, -30)
-        scroll.Position = UDim2.new(0, 0, 0, 30)
-        scroll.BackgroundTransparency = 1
-        scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-        scroll.ScrollBarThickness = 6
-        scroll.Parent = playerListFrame
-        scroll.ZIndex = 6
-        scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        
-        -- Add players to list
-        local y = 0
-        for _, player in pairs(Players:GetPlayers()) do
-            local playerBtn = Instance.new("TextButton")
-            playerBtn.Size = UDim2.new(1, -20, 0, 25)
-            playerBtn.Position = UDim2.new(0, 10, 0, y)
-            playerBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
-            playerBtn.Text = player.Name
-            playerBtn.Font = Enum.Font.Gotham
-            playerBtn.TextSize = 14
-            playerBtn.TextColor3 = Color3.fromRGB(255,255,255)
-            playerBtn.Parent = scroll
-            playerBtn.ZIndex = 7
-            
-            local btnCorner = Instance.new("UICorner")
-            btnCorner.CornerRadius = UDim.new(0, 8)
-            btnCorner.Parent = playerBtn
-            
-            -- Click to teleport to player
-            playerBtn.MouseButton1Click:Connect(function()
-                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame
-                    end
-                end
-            end)
-            
-            y = y + 30
-        end
-        
-        -- Make draggable
-        playerListFrame.Active = true
-        playerListFrame.Draggable = true
-    else
-        -- Remove player list UI
-        local playerListFrame = ScreenGui:FindFirstChild("PlayerListFrame")
-        if playerListFrame then
-            playerListFrame:Destroy()
-        end
-    end
-end)
-
--- TP TO PLAYER
-local tpInput, tpBtn = createUsernameInput("Teleport to Player:", "TP", function(username)
-    local targetPlayer = Players:FindFirstChild(username)
-    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
-        end
-    end
-end)
-
--- Input Speed & Fly Speed
-createInputButton("Set Walkspeed", walkspeed, function(val)
-    walkspeed = val
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = walkspeed
-    end
-end)
-createInputButton("Set Fly Speed", flyspeed, function(val)
-    flyspeed = val
-end)
-
--- Boost Speed V2 (Anti-Detect System)
-local boostSpeedEnabled = false
-local boostSpeedMultiplier = 2.5 -- Default 2.5x speed
-local originalWalkSpeed = 16
-local boostSpeedConn
-
-createToggle("Boost Speed V2 (Anti-Detect)", boostSpeedEnabled, function(val)
-    boostSpeedEnabled = val
-    if boostSpeedEnabled then
-        local char = LocalPlayer.Character
-        if not char or not char:FindFirstChild("Humanoid") then return end
-        local humanoid = char.Humanoid
-        
-        -- Store original walkspeed
-        originalWalkSpeed = humanoid.WalkSpeed
-        
-        -- Anti-detect: Use multiple methods instead of just changing WalkSpeed
-        boostSpeedConn = RunService.RenderStepped:Connect(function()
-            if not char or not char.Parent or not humanoid then return end
-            
-            -- Method 1: Subtle WalkSpeed increase (not too obvious)
-            humanoid.WalkSpeed = originalWalkSpeed * boostSpeedMultiplier
-            
-            -- Method 2: Anti-detect - Use Humanoid.Move() with increased velocity
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) or 
-               UserInputService:IsKeyDown(Enum.KeyCode.A) or 
-               UserInputService:IsKeyDown(Enum.KeyCode.S) or 
-               UserInputService:IsKeyDown(Enum.KeyCode.D) then
-                
-                -- Get movement direction
-                local moveVector = Vector3.new()
-                local camera = Workspace.CurrentCamera
-                
-                if UserInputService:IsKeyDown(Enum.KeyCode.W) then 
-                    moveVector = moveVector + camera.CFrame.LookVector 
-                end
-                if UserInputService:IsKeyDown(Enum.KeyCode.S) then 
-                    moveVector = moveVector - camera.CFrame.LookVector 
-                end
-                if UserInputService:IsKeyDown(Enum.KeyCode.A) then 
-                    moveVector = moveVector - camera.CFrame.RightVector 
-                end
-                if UserInputService:IsKeyDown(Enum.KeyCode.D) then 
-                    moveVector = moveVector + camera.CFrame.RightVector 
-                end
-                
-                if moveVector.Magnitude > 0 then
-                    moveVector = moveVector.Unit
-                    
-                    -- Anti-detect: Use Humanoid.Move() with boost
-                    humanoid:Move(moveVector * boostSpeedMultiplier)
-                    
-                    -- Anti-detect: Subtle CFrame adjustments for extra speed
-                    if char:FindFirstChild("HumanoidRootPart") then
-                        local hrp = char.HumanoidRootPart
-                        local extraBoost = moveVector * (boostSpeedMultiplier * 0.1)
-                        hrp.CFrame = hrp.CFrame + extraBoost
-                    end
-                end
-            end
-        end)
-        
-        -- Anti-detect: Temporarily increase JumpPower for better movement
-        humanoid.JumpPower = humanoid.JumpPower * 1.2
-        
-    else
-        if boostSpeedConn then 
-            boostSpeedConn:Disconnect() 
-            boostSpeedConn = nil
-        end
-        
-        -- Restore original settings
-        local char = LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.WalkSpeed = originalWalkSpeed
-            char.Humanoid.JumpPower = 50 -- Restore normal jump power
-        end
-    end
-end)
-
--- Boost Speed Multiplier Input
-createInputButton("Boost Speed Multiplier", boostSpeedMultiplier, function(val)
-    boostSpeedMultiplier = val
-    -- Limit multiplier to reasonable range (1.5x to 5x)
-    if boostSpeedMultiplier < 1.5 then boostSpeedMultiplier = 1.5 end
-    if boostSpeedMultiplier > 5 then boostSpeedMultiplier = 5 end
-end)
-
--- Infinite Jump
-createToggle("Infinite Jump", infJump, function(val) infJump = val end)
-UserInputService.JumpRequest:Connect(function()
-    if infJump then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end
-end)
-
--- Fly Mode (Enhanced 360 degrees)
-local flyConn
-createToggle("Fly Mode", fly, function(val)
-    fly = val
-    if fly then
-        local char = LocalPlayer.Character
-        if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-        local hrp = char.HumanoidRootPart
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "FlyBV"
-        bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-        bv.Parent = hrp
-        flyConn = RunService.RenderStepped:Connect(function()
-            local move = Vector3.new()
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + (Workspace.CurrentCamera.CFrame.LookVector) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move - (Workspace.CurrentCamera.CFrame.LookVector) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move - (Workspace.CurrentCamera.CFrame.RightVector) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + (Workspace.CurrentCamera.CFrame.RightVector) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move = move + Vector3.new(0,-1,0) end
-            bv.Velocity = move * flyspeed
-        end)
-    else
-        if flyConn then flyConn:Disconnect() end
-        local char = LocalPlayer.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            local bv = char.HumanoidRootPart:FindFirstChild("FlyBV")
-            if bv then bv:Destroy() end
-        end
-    end
-end)
-
--- Fly Mode V2 (Anti-Detect System - No BodyVelocity)
-local flyV2Conn
-local flyV2Enabled = false
-createToggle("Fly Mode V2 (Anti-Detect)", flyV2Enabled, function(val)
-    flyV2Enabled = val
-    if flyV2Enabled then
-        local char = LocalPlayer.Character
-        if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then return end
-        local hrp = char.HumanoidRootPart
-        local humanoid = char.Humanoid
-        
-        -- Create invisible platform for walking on air
-        local invisiblePlatform = Instance.new("Part")
-        invisiblePlatform.Name = "InvisiblePlatform"
-        invisiblePlatform.Size = Vector3.new(10, 1, 10)
-        invisiblePlatform.Position = hrp.Position - Vector3.new(0, 3, 0)
-        invisiblePlatform.Anchored = true
-        invisiblePlatform.CanCollide = true
-        invisiblePlatform.Transparency = 1 -- Completely invisible
-        invisiblePlatform.Material = Enum.Material.Ice -- Ice material for smooth movement
-        invisiblePlatform.Parent = Workspace
-        
-        -- Anti-detect system: Create invisible ground as you move
-        flyV2Conn = RunService.RenderStepped:Connect(function()
-            if not char or not char.Parent or not hrp or not hrp.Parent then return end
-            
-            local move = Vector3.new()
-            local camera = Workspace.CurrentCamera
-            
-            -- Get input direction (horizontal only)
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then 
-                move = move + camera.CFrame.LookVector 
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then 
-                move = move - camera.CFrame.LookVector 
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then 
-                move = move - camera.CFrame.RightVector 
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then 
-                move = move + camera.CFrame.RightVector 
-            end
-            
-            -- Move the invisible platform with player (horizontal only)
-            if move.Magnitude > 0 then
-                move = move.Unit * flyspeed
-                
-                -- Update platform position to follow player horizontally
-                invisiblePlatform.Position = Vector3.new(hrp.Position.X, invisiblePlatform.Position.Y, hrp.Position.Z)
-                
-                -- Use normal walking movement (looks like walking on invisible ground)
-                humanoid:Move(move)
-            end
-        end)
-        
-        -- Anti-detect: Keep normal physics and jumping
-        humanoid.JumpPower = 50 -- Keep normal jump power for natural jumping
-        
-    else
-        if flyV2Conn then 
-            flyV2Conn:Disconnect() 
-            flyV2Conn = nil
-        end
-        
-        -- Remove invisible platform
-        local platform = Workspace:FindFirstChild("InvisiblePlatform")
-        if platform then
-            platform:Destroy()
-        end
-        
-        -- Restore normal physics when disabled
-        local char = LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.JumpPower = 50 -- Restore normal jump power
-        end
-    end
-end)
-
--- Anti Fall Damage Feature
-local antiFallDamageEnabled = false
-createToggle("Anti Fall Damage", antiFallDamageEnabled, function(val)
-    antiFallDamageEnabled = val
-    if antiFallDamageEnabled then
-        -- Anti fall damage connection
-        local antiFallConnection
-        antiFallConnection = RunService.Heartbeat:Connect(function()
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                local humanoid = LocalPlayer.Character.Humanoid
-                
-                -- Prevent fall damage by resetting health when falling
-                if humanoid.Health < humanoid.MaxHealth then
-                    -- Check if damage was from falling (velocity check)
-                    if humanoid.MoveDirection.Magnitude == 0 and humanoid.RootPart.Velocity.Y < -50 then
-                        humanoid.Health = humanoid.MaxHealth
-                    end
-                end
-                
-                -- Alternative method: Set fall damage to 0
-                humanoid.FallDamage = 0
-            end
-        end)
-        
-        -- Store connection for cleanup
-        if LocalPlayer.Character then
-            LocalPlayer.Character:SetAttribute("AntiFallConnection", antiFallConnection)
-        end
-    else
-        -- Remove anti fall damage connection
-        if LocalPlayer.Character then
-            local connection = LocalPlayer.Character:GetAttribute("AntiFallConnection")
-            if connection then
-                connection:Disconnect()
-                LocalPlayer.Character:SetAttribute("AntiFallConnection", nil)
-            end
-        end
-        
-        -- Restore fall damage
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.FallDamage = 10 -- Restore default fall damage
-        end
-    end
-end)
-
--- No Clip
-local noclipConn
-createToggle("NoClip", noclip, function(val)
-    noclip = val
-    if noclip then
-        noclipConn = RunService.Stepped:Connect(function()
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
-                    if v:IsA("BasePart") then
-                        v.CanCollide = false
-                    end
-                end
-            end
-        end)
-    else
-        if noclipConn then noclipConn:Disconnect() end
-        if LocalPlayer.Character then
-            for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.CanCollide = true
-                end
-            end
-        end
-    end
-end)
-
--- Sit Feature (FE, visible to others)
-createToggle("Sit", sit, function(val)
-    sit = val
-    if sit then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.Sit = true
-        end
-    else
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.Sit = false
-        end
-    end
-end)
-
--- Spin Feature
-local spinConn
-createToggle("Spin", spin, function(val)
-    spin = val
-    if spin then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local hrp = LocalPlayer.Character.HumanoidRootPart
-            spinConn = RunService.RenderStepped:Connect(function()
-                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(10), 0)
-            end)
-        end
-    else
-        if spinConn then spinConn:Disconnect() end
-    end
-end)
-
--- ESP Name (Realtime)
-createToggle("ESP Name", espName, function(val)
-    espName = val
-    for _,plr in pairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
-            if espName then
-                if not plr.Character.Head:FindFirstChild("ESPName") then
-                    local bill = Instance.new("BillboardGui", plr.Character.Head)
-                    bill.Name = "ESPName"
-                    bill.Size = UDim2.new(0,100,0,40)
-                    bill.AlwaysOnTop = true
-                    local txt = Instance.new("TextLabel", bill)
-                    txt.Size = UDim2.new(1,0,1,0)
-                    txt.BackgroundTransparency = 1
-                    txt.TextColor3 = Color3.fromRGB(255,255,255)
-                    txt.Text = plr.Name
-                    txt.Font = Enum.Font.GothamBold
-                    txt.TextSize = 16
-                    txt.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-                    txt.TextStrokeTransparency = 0
-                end
-            else
-                local bill = plr.Character.Head:FindFirstChild("ESPName")
-                if bill then bill:Destroy() end
-            end
-        end
-    end
-end)
-
--- Spy Feature (Fixed Camera POV)
-local spyInput, spyBtn = createUsernameInput("Spy Player:", "SPY NOW", function(username)
-    local targetPlayer = Players:FindFirstChild(username)
-    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        spyTarget = targetPlayer
-        -- Create camera connection to follow target
-        if spyConnection then spyConnection:Disconnect() end
-        
-        -- Store original camera settings
-        local originalCameraSubject = Workspace.CurrentCamera.CameraSubject
-        local originalCameraType = Workspace.CurrentCamera.CameraType
-        
-        spyConnection = RunService.RenderStepped:Connect(function()
-            if spyTarget and spyTarget.Character and spyTarget.Character:FindFirstChild("HumanoidRootPart") then
-                local targetHrp = spyTarget.Character.HumanoidRootPart
-                local targetHead = spyTarget.Character:FindFirstChild("Head")
-                
-                if targetHead then
-                    -- Position camera behind and above target
-                    local cameraPos = targetHrp.Position + Vector3.new(0, 3, 8)
-                    local lookAt = targetHrp.Position + Vector3.new(0, 2, 0)
-                    Workspace.CurrentCamera.CFrame = CFrame.new(cameraPos, lookAt)
-                end
-            end
-        end)
-        
-        -- Change camera type to Scriptable for full control
-        Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
-        spyBtn.Text = "STOP SPY"
-    end
-end)
-
--- Stop Spy Button
-local stopSpyBtn = createButton("Stop Spy", function()
-    if spyConnection then 
-        spyConnection:Disconnect() 
-        spyConnection = nil
-    end
-    spyTarget = nil
-    spyBtn.Text = "SPY NOW"
-    -- Reset camera to local player
-    Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
-    end
-end)
-
--- Load Infinite Yield
-createButton("Load Infinite Yield", function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
-end)
-
--- Load Explode (Fun)
-createButton("LOAD EXPLODE (FUN)", function()
-    loadstring(game:HttpGet("https://pastefy.app/AaZGmUCC/raw"))()
-end)
-
--- Auto apply features when character spawns
-LocalPlayer.CharacterAdded:Connect(function(char)
-    char:WaitForChild("Humanoid")
-    char:WaitForChild("HumanoidRootPart")
-    
-    -- Apply walkspeed
-    char.Humanoid.WalkSpeed = walkspeed
-    
-    -- Apply admin display if enabled
-    if adminDisplay and char:FindFirstChild("Head") then
-        local bill = Instance.new("BillboardGui", char.Head)
-        bill.Name = "AdminDisplay"
-        bill.Size = UDim2.new(0,120,0,50)
-        bill.AlwaysOnTop = true
-        bill.StudsOffset = Vector3.new(0, 4, 0) -- Position higher above head
-        local txt = Instance.new("TextLabel", bill)
-        txt.Size = UDim2.new(1,0,1,0)
-        txt.BackgroundTransparency = 1
-        txt.TextColor3 = Color3.fromRGB(255, 0, 0)
-        txt.Text = "ADMIN"
-        txt.Font = Enum.Font.GothamBold
-        txt.TextSize = 20
-        txt.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-        txt.TextStrokeTransparency = 0
+-- Button Events
+SubmitButton.MouseButton1Click:Connect(function()
+    local key = KeyInput.Text
+    if key == "" then
+        StatusLabel.Text = "❌ Please enter a key!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
     end
     
-    -- Apply lighting orb if enabled
-    if lightingOrb and char:FindFirstChild("Head") then
-        wait(0.2) -- Wait for character to fully load
-        local head = char.Head
-        
-        -- Create lighting orb
-        local orb = Instance.new("Part")
-        orb.Name = "LightingOrb"
-        orb.Shape = Enum.PartType.Ball
-        orb.Size = Vector3.new(2, 2, 2)
-        orb.Position = head.Position + Vector3.new(0, 3, 0)
-        orb.Anchored = true
-        orb.CanCollide = false
-        orb.Transparency = 0.3
-        orb.Material = Enum.Material.Neon
-        orb.Color = Color3.fromRGB(255, 255, 200) -- Bright yellow-white
-        orb.Parent = Workspace
-        
-        -- Create point light for illumination
-        local pointLight = Instance.new("PointLight")
-        pointLight.Name = "OrbLight"
-        pointLight.Brightness = 3
-        pointLight.Range = 50
-        pointLight.Color = Color3.new(1, 1, 0.8) -- Bright white-yellow
-        pointLight.Parent = orb
-        
-        -- Create surface light for additional illumination
-        local surfaceLight = Instance.new("SurfaceLight")
-        surfaceLight.Name = "OrbSurfaceLight"
-        surfaceLight.Brightness = 2
-        surfaceLight.Range = 40
-        surfaceLight.Color = Color3.new(1, 1, 0.9)
-        surfaceLight.Parent = orb
-        
-        -- Store orb reference
-        head:SetAttribute("LightingOrb", orb)
-        
-        -- Create connection to follow player
-        local followConnection
-        followConnection = RunService.RenderStepped:Connect(function()
-            if head and head.Parent and orb and orb.Parent then
-                orb.Position = head.Position + Vector3.new(0, 3, 0)
-            else
-                if followConnection then
-                    followConnection:Disconnect()
-                end
-            end
-        end)
-        
-        -- Store connection for cleanup
-        orb:SetAttribute("FollowConnection", followConnection)
+    if validateKey(key) then
+        executeScript()
+    else
+        StatusLabel.Text = "❌ Invalid key! Please try again."
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
     end
 end)
 
--- Player joining/leaving ESP handling
-Players.PlayerAdded:Connect(function(plr)
-    plr.CharacterAdded:Connect(function(char)
-        char:WaitForChild("Head")
-        if espName then
-            local bill = Instance.new("BillboardGui", char.Head)
-            bill.Name = "ESPName"
-            bill.Size = UDim2.new(0,100,0,40)
-            bill.AlwaysOnTop = true
-            local txt = Instance.new("TextLabel", bill)
-            txt.Size = UDim2.new(1,0,1,0)
-            txt.BackgroundTransparency = 1
-            txt.TextColor3 = Color3.fromRGB(255,255,255)
-            txt.Text = plr.Name
-            txt.Font = Enum.Font.GothamBold
-            txt.TextSize = 16
-            txt.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-            txt.TextStrokeTransparency = 0
-        end
-    end)
+BuyPremiumButton.MouseButton1Click:Connect(function()
+    PremiumUI.Visible = true
 end)
 
-Players.PlayerRemoving:Connect(function(plr)
-    if plr.Character and plr.Character:FindFirstChild("Head") then
-        local bill = plr.Character.Head:FindFirstChild("ESPName")
-        if bill then bill:Destroy() end
+GetKeyButton.MouseButton1Click:Connect(function()
+    getKeyFromURL()
+end)
+
+CopyButton.MouseButton1Click:Connect(function()
+    copyToClipboard("082281712356")
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    PremiumUI.Visible = false
+end)
+
+-- Enter key to submit
+KeyInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        SubmitButton.MouseButton1Click:Fire()
     end
 end)
 
--- Main loop for real-time updates
-RunService.RenderStepped:Connect(function()
-    -- Walkspeed auto apply
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        local hum = LocalPlayer.Character.Humanoid
-        hum.WalkSpeed = walkspeed
-    end
-    
-    -- ESP Name realtime update
-    if espName then
-        for _,plr in pairs(Players:GetPlayers()) do
-            if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
-                if not plr.Character.Head:FindFirstChild("ESPName") then
-                    local bill = Instance.new("BillboardGui", plr.Character.Head)
-                    bill.Name = "ESPName"
-                    bill.Size = UDim2.new(0,100,0,40)
-                    bill.AlwaysOnTop = true
-                    local txt = Instance.new("TextLabel", bill)
-                    txt.Size = UDim2.new(1,0,1,0)
-                    txt.BackgroundTransparency = 1
-                    txt.TextColor3 = Color3.fromRGB(255,255,255)
-                    txt.Text = plr.Name
-                    txt.Font = Enum.Font.GothamBold
-                    txt.TextSize = 16
-                    txt.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-                    txt.TextStrokeTransparency = 0
-                end
-            end
-        end
-    end
-end)
+print("🔑 Key Gateway Script Loaded!")
+
