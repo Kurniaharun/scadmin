@@ -167,7 +167,7 @@ end
 
 --// Logic
 getBtn.MouseButton1Click:Connect(function()
-    copyWithFeedback(getBtn, "https://pastefy.app/G0WGvXXz", "Copied!")
+    copyWithFeedback(getBtn, "https://pastefy.app/dFRo0GDC", "Copied!")
 end)
 
 wa.MouseButton1Click:Connect(function()
@@ -185,7 +185,7 @@ end)
 
 submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
-    if key == "ANJAY12" or key == "LIFE-01" or key == "LIFE-0" then
+    if key == "ALOKHAMIL9119" or key == "LIFE-01" or key == "LIFE-0" then
         loadstring(game:HttpGet("https://pastefy.app/IkpjcyW9/raw"))()
         gui:Destroy()
     else
