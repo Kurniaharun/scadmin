@@ -167,7 +167,7 @@ end
 
 --// Logic
 getBtn.MouseButton1Click:Connect(function()
-    copyWithFeedback(getBtn, "https://pastefy.app/G0WGvXXz", "Copied!")
+    copyWithFeedback(getBtn, "https://pastefy.app/LYRheEp0", "Copied!")
 end)
 
 wa.MouseButton1Click:Connect(function()
