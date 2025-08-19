@@ -185,7 +185,7 @@ end)
 
 submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
-    if key == "ALOKHAMIL9119" or key == "LIFE-01" or key == "LIFE-0" then
+    if key == "ALOKHAMIL9119" or key == "PERMKEY-BYLAWW11" or key == "PERMKEY-BYLAWW1" then
         loadstring(game:HttpGet("https://pastefy.app/W4TtXmNF/raw"))()
         gui:Destroy()
     else
