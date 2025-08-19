@@ -130,7 +130,7 @@ UICorner8.CornerRadius = UDim.new(0,12)
 local wa = Instance.new("TextButton", premiumFrame)
 wa.Size = UDim2.new(0.9,0,0,35)
 wa.Position = UDim2.new(0.05,0,0.3,0)
-wa.Text = "WHATSAPP : +6282281712356 (Copy)"
+wa.Text = "WHATSAPP : +6285351187520 (Copy)"
 wa.Font = Enum.Font.Code
 wa.TextScaled = true
 wa.TextColor3 = Color3.fromRGB(255,255,255)
@@ -167,11 +167,11 @@ end
 
 --// Logic
 getBtn.MouseButton1Click:Connect(function()
-    copyWithFeedback(getBtn, "https://sfl.gl/uv7ISCYV", "Copied!")
+    copyWithFeedback(getBtn, "https://sfl.gl/1K77Ft18", "Copied!")
 end)
 
 wa.MouseButton1Click:Connect(function()
-    copyWithFeedback(wa, "+6282281712356", "Copied!")
+    copyWithFeedback(wa, "+6285351187520", "Copied!")
 end)
 
 disc.MouseButton1Click:Connect(function()
@@ -185,7 +185,7 @@ end)
 
 submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
-    if key == "ALOKHAMIL9119" or key == "PERMKEY-BYLAWW11" or key == "PERMKEY-BYLAWW1" then
+    if key == "Tiktok-LawwBloxstore" or key == "ASELOLE121" or key == "ASELOLE12" then
         loadstring(game:HttpGet("https://pastefy.app/IkpjcyW9/raw"))()
         gui:Destroy()
     else
