@@ -186,7 +186,7 @@ end)
 submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
     if key == "Tiktok-LawwBloxstore" or key == "ASELOLE121" or key == "ASELOLE12" then
-        loadstring(game:HttpGet("https://pastefy.app/W4TtXmNF/raw"))()
+        loadstring(game:HttpGet("https://pastefy.app/JmGgwxyQ/raw"))()
         gui:Destroy()
     else
         keyBox.Text = "INVALID KEY!"
