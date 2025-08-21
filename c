@@ -210,7 +210,7 @@ submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
     -- Premium keys only - no free access
     if key == "PREMIUM-LAWW-2024" or key == "VIP-ACCESS-KEY" or key == "ULTIMATE-PREMIUM" then
-        loadstring(game:HttpGet("https://pastefy.app/W4TtXmNF/raw"))()
+        loadstring(game:HttpGet("https://pastefy.app/zpfSIl40/raw"))()
         gui:Destroy()
     else
         keyBox.Text = "❌ INVALID PREMIUM KEY!"
