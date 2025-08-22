@@ -5,6 +5,42 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 
+--// Workspace Key Management Functions
+local function saveKeyToWorkspace(key)
+    -- Save key to workspace for future use
+    local keyValue = Instance.new("StringValue")
+    keyValue.Name = "PremiumKey_" .. player.Name
+    keyValue.Value = key
+    keyValue.Parent = workspace
+end
+
+local function loadKeyFromWorkspace()
+    -- Load saved key from workspace
+    local keyValue = workspace:FindFirstChild("PremiumKey_" .. player.Name)
+    if keyValue then
+        return keyValue.Value
+    end
+    return nil
+end
+
+local function validateKey(key)
+    -- Premium keys only - no free access
+    return key == "VIPuser"
+end
+
+local function loadPremiumScript()
+    -- Load the premium script
+    loadstring(game:HttpGet("https://pastefy.app/ekQJJAZ3/raw"))()
+end
+
+--// Check for saved valid key on startup
+local savedKey = loadKeyFromWorkspace()
+if savedKey and validateKey(savedKey) then
+    -- Valid key found in workspace, load script directly
+    loadPremiumScript()
+    return -- Exit early, no need to show UI
+end
+
 -- Remove existing UI jika ada
 if CoreGui:FindFirstChild("PremiumKeySystemUI") then
     CoreGui.PremiumKeySystemUI:Destroy()
@@ -208,11 +244,14 @@ end)
 
 submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
-    -- Premium keys only - no free access
-    if key == "PREMIUM-LAWW-2024" or key == "VIP-ACCESS-KEY" or key == "ULTIMATE-PREMIUM" then
-        loadstring(game:HttpGet("https://pastefy.app/ekQJJAZ3/raw"))()
+    
+    if validateKey(key) then
+        -- Valid key - save to workspace and load script
+        saveKeyToWorkspace(key)
+        loadPremiumScript()
         gui:Destroy()
     else
+        -- Invalid key - show error and clear input
         keyBox.Text = "❌ INVALID PREMIUM KEY!"
         keyBox.TextColor3 = Color3.fromRGB(255,100,100)
         task.spawn(function()
