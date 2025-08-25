@@ -30,7 +30,7 @@ end
 
 local function loadPremiumScript()
     -- Load the premium script
-    loadstring(game:HttpGet("https://pastefy.app/pS2S9UzM/raw"))()
+    loadstring(game:HttpGet("https://pastefy.app/iRn21rGZ/raw"))()
 end
 
 --// Check for saved valid key on startup
