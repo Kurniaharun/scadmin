@@ -24,8 +24,8 @@ local function loadKeyFromWorkspace()
 end
 
 local function validateKey(key)
-    -- Premium keys only - no free access
-    return key == "VIPuser"
+    -- Accept both premium and free key
+    return key == "VIPuser" or key == "FREEVIP1"
 end
 
 local function loadPremiumScript()
@@ -97,7 +97,7 @@ end)
 local premiumNotice = Instance.new("TextLabel", mainFrame)
 premiumNotice.Size = UDim2.new(0.9,0,0,40)
 premiumNotice.Position = UDim2.new(0.05,0,0.2,0)
-premiumNotice.Text = "⭐ PREMIUM ACCESS REQUIRED ⭐"
+premiumNotice.Text = "⭐ PREMIUM OR FREE KEY REQUIRED ⭐"
 premiumNotice.TextColor3 = Color3.fromRGB(255,215,0)
 premiumNotice.TextScaled = true
 premiumNotice.Font = Enum.Font.GothamBold
@@ -107,7 +107,7 @@ premiumNotice.BackgroundTransparency = 1
 local keyBox = Instance.new("TextBox", mainFrame)
 keyBox.Size = UDim2.new(0.85,0,0,45)
 keyBox.Position = UDim2.new(0.075,0,0.35,0)
-keyBox.PlaceholderText = "Enter your premium key..."
+keyBox.PlaceholderText = "Enter your premium or free key..."
 keyBox.Text = ""
 keyBox.Font = Enum.Font.Gotham
 keyBox.TextScaled = true
@@ -116,11 +116,23 @@ keyBox.BackgroundColor3 = Color3.fromRGB(25,25,25)
 local UICorner3 = Instance.new("UICorner", keyBox)
 UICorner3.CornerRadius = UDim.new(0,10)
 
+-- Get Key Button
+local getKeyBtn = Instance.new("TextButton", mainFrame)
+getKeyBtn.Size = UDim2.new(0.4,0,0,35)
+getKeyBtn.Position = UDim2.new(0.075,0,0.6,0)
+getKeyBtn.Text = "🔗 GET KEY"
+getKeyBtn.Font = Enum.Font.GothamBold
+getKeyBtn.TextScaled = true
+getKeyBtn.TextColor3 = Color3.fromRGB(255,255,255)
+getKeyBtn.BackgroundColor3 = Color3.fromRGB(0,200,100)
+local UICornerGetKey = Instance.new("UICorner", getKeyBtn)
+UICornerGetKey.CornerRadius = UDim.new(0,10)
+
 -- Tombol Submit Key
 local submitBtn = Instance.new("TextButton", mainFrame)
-submitBtn.Size = UDim2.new(0.85,0,0,45)
-submitBtn.Position = UDim2.new(0.075,0,0.52,0)
-submitBtn.Text = "🚀 ACTIVATE PREMIUM"
+submitBtn.Size = UDim2.new(0.4,0,0,35)
+submitBtn.Position = UDim2.new(0.525,0,0.6,0)
+submitBtn.Text = "🚀 ACTIVATE"
 submitBtn.Font = Enum.Font.GothamBold
 submitBtn.TextScaled = true
 submitBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -130,8 +142,8 @@ UICorner4.CornerRadius = UDim.new(0,10)
 
 -- Tombol Buy Premium
 local buyBtn = Instance.new("TextButton", mainFrame)
-buyBtn.Size = UDim2.new(0.85,0,0,50)
-buyBtn.Position = UDim2.new(0.075,0,0.72,0)
+buyBtn.Size = UDim2.new(0.85,0,0,40)
+buyBtn.Position = UDim2.new(0.075,0,0.8,0)
 buyBtn.Text = "💎 BUY PREMIUM KEY"
 buyBtn.Font = Enum.Font.GothamBold
 buyBtn.TextScaled = true
@@ -139,6 +151,16 @@ buyBtn.TextColor3 = Color3.fromRGB(255,255,255)
 buyBtn.BackgroundColor3 = Color3.fromRGB(220,20,60)
 local UICorner6 = Instance.new("UICorner", buyBtn)
 UICorner6.CornerRadius = UDim.new(0,12)
+
+-- Info Free Key
+local freeKeyInfo = Instance.new("TextLabel", mainFrame)
+freeKeyInfo.Size = UDim2.new(0.85,0,0,25)
+freeKeyInfo.Position = UDim2.new(0.075,0,0.48,0)
+freeKeyInfo.Text = "Free Key: FREEVIP1"
+freeKeyInfo.TextColor3 = Color3.fromRGB(0,255,127)
+freeKeyInfo.TextScaled = true
+freeKeyInfo.Font = Enum.Font.Gotham
+freeKeyInfo.BackgroundTransparency = 1
 
 -- Frame Premium Purchase
 local premiumFrame = Instance.new("Frame", gui)
@@ -242,9 +264,13 @@ backBtn.MouseButton1Click:Connect(function()
     mainFrame.Visible = true
 end)
 
+getKeyBtn.MouseButton1Click:Connect(function()
+    copyWithFeedback(getKeyBtn, "https://sfl.gl/llhm6sJq", "Link copied!")
+end)
+
 submitBtn.MouseButton1Click:Connect(function()
     local key = keyBox.Text
-    
+
     if validateKey(key) then
         -- Valid key - save to workspace and load script
         saveKeyToWorkspace(key)
@@ -252,7 +278,7 @@ submitBtn.MouseButton1Click:Connect(function()
         gui:Destroy()
     else
         -- Invalid key - show error and clear input
-        keyBox.Text = "❌ INVALID PREMIUM KEY!"
+        keyBox.Text = "❌ INVALID KEY!"
         keyBox.TextColor3 = Color3.fromRGB(255,100,100)
         task.spawn(function()
             wait(2)
