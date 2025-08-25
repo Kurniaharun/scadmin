@@ -152,16 +152,6 @@ buyBtn.BackgroundColor3 = Color3.fromRGB(220,20,60)
 local UICorner6 = Instance.new("UICorner", buyBtn)
 UICorner6.CornerRadius = UDim.new(0,12)
 
--- Info Free Key
-local freeKeyInfo = Instance.new("TextLabel", mainFrame)
-freeKeyInfo.Size = UDim2.new(0.85,0,0,25)
-freeKeyInfo.Position = UDim2.new(0.075,0,0.48,0)
-freeKeyInfo.Text = "Free Key: FREEVIP1"
-freeKeyInfo.TextColor3 = Color3.fromRGB(0,255,127)
-freeKeyInfo.TextScaled = true
-freeKeyInfo.Font = Enum.Font.Gotham
-freeKeyInfo.BackgroundTransparency = 1
-
 -- Frame Premium Purchase
 local premiumFrame = Instance.new("Frame", gui)
 premiumFrame.Size = UDim2.new(0,500,0,350)
