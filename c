@@ -1,5 +1,5 @@
 -- FISH IT SCRIPT - UNIVERSAL ROBLOX LUA (UI iPhone Modern)
--- Fitur: Instant Rail, Auto Rail, Auto Rail V2, Anti Oxygen, Anti Fall, Infinite Jump, Jump Boost, Speed Multiplier, Anti Detect, Teleport Map List, Water Walker
+-- Fitur: Instant Rail, Auto Rail, Anti Oxygen, Anti Fall, Infinite Jump, Jump Boost, Speed Multiplier, Anti Detect, Teleport Map List, Water Walker
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -8,7 +8,6 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualUser = game:GetService("VirtualUser")
 
 -- Hapus semua UI lama
 for _,v in ipairs(game.CoreGui:GetChildren()) do
@@ -262,17 +261,20 @@ end
 -- State Variables
 local instantRailEnabled = false
 local autoRailEnabled = false
-local realRailEnabled = false -- NEW: Real Rail Toggle
+local realRailEnabled = false
+local flyModeEnabled = false
+local noclipEnabled = false
+
+ 
 
 local speedMultiplierEnabled = false
 local antiDetectEnabled = false
--- Anti AFK will be loaded via loadstring
 local waterWalkerEnabled = false
 local savedPosition = nil
-local sellPosition = Vector3.new(49, 17, 2870)
+local sellPosition = Vector3.new(48.95, 17.28, 2863.87)
 
 -- Buy Rod System
-local buyRodPosition = Vector3.new(120, 5, 2856)
+local buyRodPosition = Vector3.new(148.82, 20.41, 2832.60)
 
 local walkSpeedMultiplier = 3.0
 
@@ -285,6 +287,24 @@ local stepDistance = 3 -- jarak antar spawn ice
 local iceSize = Vector3.new(5, 1, 5) -- ukuran ice
 local iceTransparency = 0.3 -- transparansi ice
 local iceLifetime = 3 -- detik sebelum ice hancur
+
+-- Fly Mode System
+local flySpeed = 50
+local flyConnection = nil
+local flyKeys = {
+    W = false,
+    A = false,
+    S = false,
+    D = false,
+    Space = false,
+    Shift = false
+}
+
+-- Noclip System
+local noclipConnection = nil
+local originalCollisions = {}
+
+
 
 -- Vehicle Boost System
 local vehicleBoostEnabled = false
@@ -317,6 +337,143 @@ end
 local function disableIceWalker()
     iceWalkerEnabled = false
     lastIcePos = nil
+end
+
+-- Fly Mode Functions
+local function enableFlyMode()
+    flyModeEnabled = true
+    print("Fly Mode enabled - Use WASD to move, Space/Shift for up/down")
+end
+
+local function disableFlyMode()
+    flyModeEnabled = false
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+    print("Fly Mode disabled")
+end
+
+local function startFlyMode()
+    if not flyModeEnabled then return end
+    
+    local character = LocalPlayer.Character
+    if not character then
+        warn("Character not found.")
+        return
+    end
+    
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then
+        warn("HumanoidRootPart not found.")
+        return
+    end
+    
+    if flyConnection then
+        flyConnection:Disconnect()
+    end
+    
+    flyConnection = RunService.RenderStepped:Connect(function()
+        if not flyModeEnabled or not character or not humanoidRootPart then
+            if flyConnection then
+                flyConnection:Disconnect()
+                flyConnection = nil
+            end
+            return
+        end
+        
+        local camera = workspace.CurrentCamera
+        local lookVector = camera.CFrame.LookVector
+        local rightVector = camera.CFrame.RightVector
+        local upVector = Vector3.new(0, 1, 0)
+        
+        local moveVector = Vector3.new(0, 0, 0)
+        
+        if flyKeys.W then
+            moveVector = moveVector + lookVector
+        end
+        if flyKeys.S then
+            moveVector = moveVector - lookVector
+        end
+        if flyKeys.A then
+            moveVector = moveVector - rightVector
+        end
+        if flyKeys.D then
+            moveVector = moveVector + rightVector
+        end
+        if flyKeys.Space then
+            moveVector = moveVector + upVector
+        end
+        if flyKeys.Shift then
+            moveVector = moveVector - upVector
+        end
+        
+        if moveVector.Magnitude > 0 then
+            moveVector = moveVector.Unit * flySpeed
+            humanoidRootPart.CFrame = humanoidRootPart.CFrame + moveVector * (1/60)
+        end
+    end)
+end
+
+-- Noclip Functions
+local function enableNoclip()
+    noclipEnabled = true
+    print("Noclip enabled - You can now walk through walls and objects")
+end
+
+local function disableNoclip()
+    noclipEnabled = false
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+    print("Noclip disabled")
+end
+
+local function startNoclip()
+    if not noclipEnabled then return end
+    
+    local character = LocalPlayer.Character
+    if not character then
+        warn("Character not found for noclip.")
+        return
+    end
+    
+    if noclipConnection then
+        noclipConnection:Disconnect()
+    end
+    
+    noclipConnection = RunService.Heartbeat:Connect(function()
+        if not noclipEnabled or not character then
+            if noclipConnection then
+                noclipConnection:Disconnect()
+                noclipConnection = nil
+            end
+            return
+        end
+        
+        -- Get character parts that can collide
+        local parts = character:GetDescendants()
+        for _, part in pairs(parts) do
+            if part:IsA("BasePart") then
+                -- Store original collision state if not already stored
+                if not originalCollisions[part] then
+                    originalCollisions[part] = part.CanCollide
+                end
+                -- Disable collision
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+
+local function restoreCollisions()
+    for part, canCollide in pairs(originalCollisions) do
+        if part and part:IsA("BasePart") then
+            part.CanCollide = canCollide
+        end
+    end
+    originalCollisions = {}
 end
 
 -- Vehicle Boost Functions
@@ -463,13 +620,11 @@ createToggle("AUTO RAIL", autoRailEnabled, function(val)
     end
 end)
 
-
-
--- Real Rail Toggle Feature (NEW)
+-- Real Rail Feature (Auto Fishing State)
 createToggle("REAL RAIL", realRailEnabled, function(val)
     realRailEnabled = val
     if realRailEnabled then
-        -- Turn ON auto fishing
+        -- Enable auto fishing
         local success, error = pcall(function()
             local args = {
                 true
@@ -477,12 +632,12 @@ createToggle("REAL RAIL", realRailEnabled, function(val)
             game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net"):WaitForChild("RF/UpdateAutoFishingState"):InvokeServer(unpack(args))
         end)
         if success then
-            print("Real Rail ON - Auto fishing enabled")
+            print("Real Rail enabled - Auto fishing state activated")
         else
             print("Real Rail Error:", error)
         end
     else
-        -- Turn OFF auto fishing
+        -- Disable auto fishing
         local success, error = pcall(function()
             local args = {
                 false
@@ -490,12 +645,44 @@ createToggle("REAL RAIL", realRailEnabled, function(val)
             game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net"):WaitForChild("RF/UpdateAutoFishingState"):InvokeServer(unpack(args))
         end)
         if success then
-            print("Real Rail OFF - Auto fishing disabled")
+            print("Real Rail disabled - Auto fishing state deactivated")
         else
             print("Real Rail Error:", error)
         end
     end
 end)
+
+-- Fly Mode Toggle
+createToggle("FLY MODE", flyModeEnabled, function(val)
+    flyModeEnabled = val
+    if flyModeEnabled then
+        enableFlyMode()
+        startFlyMode()
+    else
+        disableFlyMode()
+    end
+end)
+
+-- Noclip Toggle
+createToggle("NOCLIP", noclipEnabled, function(val)
+    noclipEnabled = val
+    if noclipEnabled then
+        enableNoclip()
+        startNoclip()
+    else
+        disableNoclip()
+        restoreCollisions()
+    end
+end)
+
+
+
+
+
+ 
+ 
+
+
 
 -- Speed Multiplier (3x)
 createToggle("3x SPEED", speedMultiplierEnabled, function(val)
@@ -535,6 +722,8 @@ createToggle("ICE WALKER", iceWalkerEnabled, function(val)
         disableIceWalker()
     end
 end)
+
+
 
 -- Vehicle Boost Toggle
 createToggle("VEHICLE BOOST", vehicleBoostEnabled, function(val)
@@ -576,8 +765,7 @@ createToggle("ANTI DETECT", antiDetectEnabled, function(val)
     -- Placeholder: implement anti detect logic here if needed
 end)
 
--- Load Anti AFK
-loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/Anti-afk/main/antiafkbyhassanxzyn"))();
+
 
 -- Weather System Variables
 local weatherOptions = {"Wind", "Cloudy", "Snow", "Storm", "Radiant"}
@@ -1013,6 +1201,34 @@ createButton("LOAD PLAYER LIST", function()
     refreshPlayerList()
 end)
 
+-- Load Anti AFK Button
+createButton("LOAD ANTI AFK", function()
+    local success, error = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/Anti-afk/main/antiafkbyhassanxzyn"))()
+    end)
+    if success then
+        print("Anti AFK script loaded successfully!")
+        updateStatus("Anti AFK Loaded", Color3.fromRGB(0, 255, 150))
+    else
+        print("Anti AFK load error:", error)
+        updateStatus("Anti AFK Load Failed", Color3.fromRGB(255, 0, 0))
+    end
+end)
+
+-- Load Fly Mobile Button
+createButton("LOAD FLY MOBILE", function()
+    local success, error = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
+    end)
+    if success then
+        print("Fly Mobile script loaded successfully!")
+        updateStatus("Fly Mobile Loaded", Color3.fromRGB(100, 200, 255))
+    else
+        print("Fly Mobile load error:", error)
+        updateStatus("Fly Mobile Load Failed", Color3.fromRGB(255, 0, 0))
+    end
+end)
+
 -- Status Display
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Size = UDim2.new(0, 230, 0, 30)
@@ -1042,18 +1258,24 @@ RunService.RenderStepped:Connect(function()
     elseif autoRailEnabled then
         updateStatus("Auto Rail Active", Color3.fromRGB(0, 255, 255))
     elseif realRailEnabled then
-        updateStatus("Real Rail Active", Color3.fromRGB(255, 100, 255))
+        updateStatus("Real Rail Active", Color3.fromRGB(0, 255, 100))
+    elseif flyModeEnabled then
+        updateStatus("Fly Mode Active", Color3.fromRGB(150, 100, 255))
+    elseif noclipEnabled then
+        updateStatus("Noclip Active", Color3.fromRGB(255, 100, 150))
+    
+    
     elseif speedMultiplierEnabled then
         updateStatus("3x Speed Active", Color3.fromRGB(255, 120, 0))
     elseif iceWalkerEnabled then
         updateStatus("Ice Walker Active", Color3.fromRGB(100, 200, 255))
+
     elseif vehicleBoostEnabled then
         if vboostConnection then
             updateStatus("Vehicle Boost Active - Boosting", Color3.fromRGB(255, 150, 0))
         else
             updateStatus("Vehicle Boost Active - Ready", Color3.fromRGB(255, 200, 100))
         end
-    -- Anti AFK is now loaded via loadstring
     elseif antiDetectEnabled then
         updateStatus("Anti Detect Active", Color3.fromRGB(255, 0, 0))
     else
@@ -1072,6 +1294,11 @@ RunService.RenderStepped:Connect(function()
             updateStatus("Ready", Color3.fromRGB(0, 255, 0))
         end
     end
+
+    
+    
+
+
 
     -- Anti AFK is now handled by separate connection for better performance
 
@@ -1102,12 +1329,55 @@ RunService.RenderStepped:Connect(function()
             lastIcePos = currentPos
         end
     end
+    
+
 end)
 
 -- Infinite Jump Handler
 UserInputService.JumpRequest:Connect(function()
     if infJumpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
         LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+-- Fly Mode Key Input Handler
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if flyModeEnabled then
+        if input.KeyCode == Enum.KeyCode.W then
+            flyKeys.W = true
+        elseif input.KeyCode == Enum.KeyCode.A then
+            flyKeys.A = true
+        elseif input.KeyCode == Enum.KeyCode.S then
+            flyKeys.S = true
+        elseif input.KeyCode == Enum.KeyCode.D then
+            flyKeys.D = true
+        elseif input.KeyCode == Enum.KeyCode.Space then
+            flyKeys.Space = true
+        elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.RightShift then
+            flyKeys.Shift = true
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if flyModeEnabled then
+        if input.KeyCode == Enum.KeyCode.W then
+            flyKeys.W = false
+        elseif input.KeyCode == Enum.KeyCode.A then
+            flyKeys.A = false
+        elseif input.KeyCode == Enum.KeyCode.S then
+            flyKeys.S = false
+        elseif input.KeyCode == Enum.KeyCode.D then
+            flyKeys.D = false
+        elseif input.KeyCode == Enum.KeyCode.Space then
+            flyKeys.Space = false
+        elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.RightShift then
+            flyKeys.Shift = false
+        end
     end
 end)
 
@@ -1129,13 +1399,21 @@ LocalPlayer.CharacterAdded:Connect(function(char)
             hum.WalkSpeed = defaultWalkSpeed
         end
     end
+    
+    -- Re-enable noclip if it was active
+    if noclipEnabled then
+        wait(1) -- Wait for character to fully load
+        startNoclip()
+    end
 end)
 
 print("Fish It Script Loaded Successfully!")
 print("Features:")
 print("- Instant Rail: Auto execute fishing completed")
 print("- Auto Rail: Auto charge and throw every 6 seconds")
-print("- Real Rail: Toggle server-side auto fishing on/off")
+print("- Real Rail: Toggle auto fishing state on/off")
+print("- Fly Mode: Toggle flight mode with WASD + Space/Shift controls")
+print("- Noclip: Toggle walk through walls and objects")
 
 print("- Sell Fish All: One-time sell with position save")
 print("- Buy Rod: Teleport to buy rod location (120, 5, 2856)")
@@ -1147,9 +1425,11 @@ print("- Ice Walker: Spawn ice blocks while walking")
 
 print("- Vehicle Boost: Boost vehicles with adjustable speed")
 print("- Anti Detect: Simple anti cheat")
-print("- Anti AFK: Loaded via loadstring from hassanxzayn-lua")
+print("- Enhanced Anti AFK: Multiple methods with random timing")
 print("- Teleport Map List: UI for teleport, add map manual")
 print("- Load Player List: Teleport to active players")
+print("- Load Anti AFK: Manual load anti AFK script")
+print("- Load Fly Mobile: Manual load fly mobile script")
 
 -- Cleanup function for script termination
 local function cleanup()
@@ -1157,6 +1437,15 @@ local function cleanup()
         vboostConnection:Disconnect()
         vboostConnection = nil
     end
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+    restoreCollisions()
     print("Script cleanup completed")
 end
 
