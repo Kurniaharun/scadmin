@@ -262,7 +262,6 @@ end
 -- State Variables
 local instantRailEnabled = false
 local autoRailEnabled = false
-local autoRailV2Enabled = false -- NEW: Auto Rail V2
 local realRailEnabled = false -- NEW: Real Rail Toggle
 
 local speedMultiplierEnabled = false
@@ -464,63 +463,7 @@ createToggle("AUTO RAIL", autoRailEnabled, function(val)
     end
 end)
 
--- Auto Rail V2 Feature (NEW)
-createToggle("AUTO RAIL V2", autoRailV2Enabled, function(val)
-    autoRailV2Enabled = val
-    if autoRailV2Enabled then
-        spawn(function()
-            while autoRailV2Enabled do
-                -- Try to find the fishing rod tool in backpack or character
-                local rod = nil
-                if LocalPlayer.Character then
-                    for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
-                        if tool:IsA("Tool") and tool.Name:lower():find("rod") then
-                            rod = tool
-                            break
-                        end
-                    end
-                end
-                if not rod and LocalPlayer.Backpack then
-                    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-                        if tool:IsA("Tool") and tool.Name:lower():find("rod") then
-                            rod = tool
-                            break
-                        end
-                    end
-                end
 
-                -- Equip rod if not equipped
-                if rod and (not rod.Parent or rod.Parent ~= LocalPlayer.Character) then
-                    pcall(function()
-                        rod.Parent = LocalPlayer.Character
-                    end)
-                end
-
-                -- Simulate click to cast rod (simulate input)
-                if rod and rod.Parent == LocalPlayer.Character then
-                    pcall(function()
-                        -- Try to activate the tool (simulate click)
-                        rod:Activate()
-                    end)
-                end
-
-                -- Wait for a short time, then try to "reel" (simulate click again)
-                wait(0.7)
-                if rod and rod.Parent == LocalPlayer.Character then
-                    pcall(function()
-                        rod:Activate()
-                    end)
-                end
-
-                -- Wait for a bit before next cycle
-                wait(2.5)
-            end
-        end)
-        print("Auto Rail V2 started - Simulates tool usage for more legit auto fishing")
-    else
-        print("Auto Rail V2 stopped")
-    end
-end)
 
 -- Real Rail Toggle Feature (NEW)
 createToggle("REAL RAIL", realRailEnabled, function(val)
@@ -1098,8 +1041,6 @@ RunService.RenderStepped:Connect(function()
         updateStatus("Instant Rail Active", Color3.fromRGB(255, 255, 0))
     elseif autoRailEnabled then
         updateStatus("Auto Rail Active", Color3.fromRGB(0, 255, 255))
-    elseif autoRailV2Enabled then
-        updateStatus("Auto Rail V2 Active", Color3.fromRGB(0, 200, 255))
     elseif realRailEnabled then
         updateStatus("Real Rail Active", Color3.fromRGB(255, 100, 255))
     elseif speedMultiplierEnabled then
@@ -1194,7 +1135,6 @@ print("Fish It Script Loaded Successfully!")
 print("Features:")
 print("- Instant Rail: Auto execute fishing completed")
 print("- Auto Rail: Auto charge and throw every 6 seconds")
-print("- Auto Rail V2: Simulates tool usage for more legit auto fishing")
 print("- Real Rail: Toggle server-side auto fishing on/off")
 
 print("- Sell Fish All: One-time sell with position save")
