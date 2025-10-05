@@ -1,0 +1,311 @@
+-- Roblox Server Inject 99 Malam
+-- UI Dragable dengan Tema Horor Brown
+-- Script by Pottasium
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+-- Warna tema horor brown
+local colors = {
+    background = Color3.fromRGB(45, 32, 27),
+    darkBrown = Color3.fromRGB(30, 20, 15),
+    lightBrown = Color3.fromRGB(80, 60, 50),
+    accent = Color3.fromRGB(139, 69, 19),
+    text = Color3.fromRGB(222, 184, 135),
+    danger = Color3.fromRGB(139, 0, 0)
+}
+
+-- Buat ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ServerInject99Malam"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player.PlayerGui
+
+-- Full Screen Background
+local fullScreenFrame = Instance.new("Frame")
+fullScreenFrame.Name = "FullScreenFrame"
+fullScreenFrame.Size = UDim2.new(1, 0, 1, 0)
+fullScreenFrame.Position = UDim2.new(0, 0, 0, 0)
+fullScreenFrame.BackgroundColor3 = colors.background
+fullScreenFrame.BorderSizePixel = 0
+fullScreenFrame.Parent = screenGui
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 350, 0, 200)
+mainFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
+mainFrame.BackgroundColor3 = colors.darkBrown
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = fullScreenFrame
+
+-- Corner radius
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainFrame
+
+-- Shadow effect
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 6, 1, 6)
+shadow.Position = UDim2.new(0, -3, 0, -3)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+shadow.ImageColor3 = Color3.new(0, 0, 0)
+shadow.ImageTransparency = 0.5
+shadow.ZIndex = mainFrame.ZIndex - 1
+shadow.Parent = fullScreenFrame
+
+-- Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
+titleBar.Size = UDim2.new(1, 0, 0, 35)
+titleBar.Position = UDim2.new(0, 0, 0, 0)
+titleBar.BackgroundColor3 = colors.darkBrown
+titleBar.BorderSizePixel = 0
+titleBar.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 12)
+titleCorner.Parent = titleBar
+
+-- Title Text
+local titleText = Instance.new("TextLabel")
+titleText.Name = "TitleText"
+titleText.Size = UDim2.new(1, -40, 1, 0)
+titleText.Position = UDim2.new(0, 10, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "99 MALAM INJECT"
+titleText.TextColor3 = colors.text
+titleText.TextScaled = true
+titleText.Font = Enum.Font.GothamBold
+titleText.Parent = titleBar
+
+-- Close Button
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 25, 0, 25)
+closeButton.Position = UDim2.new(1, -30, 0, 5)
+closeButton.BackgroundColor3 = colors.danger
+closeButton.BorderSizePixel = 0
+closeButton.Text = "×"
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.TextScaled = true
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 5)
+closeCorner.Parent = closeButton
+
+-- Main Content
+local contentFrame = Instance.new("Frame")
+contentFrame.Name = "ContentFrame"
+contentFrame.Size = UDim2.new(1, -20, 1, -55)
+contentFrame.Position = UDim2.new(0, 10, 0, 45)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = mainFrame
+
+-- Status Text
+local statusText = Instance.new("TextLabel")
+statusText.Name = "StatusText"
+statusText.Size = UDim2.new(1, 0, 0, 30)
+statusText.Position = UDim2.new(0, 0, 0, 10)
+statusText.BackgroundTransparency = 1
+statusText.Text = "Status: Ready to Inject"
+statusText.TextColor3 = colors.text
+statusText.TextScaled = true
+statusText.Font = Enum.Font.Gotham
+statusText.Parent = contentFrame
+
+-- Inject Button
+local injectButton = Instance.new("TextButton")
+injectButton.Name = "InjectButton"
+injectButton.Size = UDim2.new(1, 0, 0, 50)
+injectButton.Position = UDim2.new(0, 0, 0, 60)
+injectButton.BackgroundColor3 = colors.accent
+injectButton.BorderSizePixel = 0
+injectButton.Text = "INJECT YOUR DAYS"
+injectButton.TextColor3 = Color3.new(1, 1, 1)
+injectButton.TextScaled = true
+injectButton.Font = Enum.Font.GothamBold
+injectButton.Parent = contentFrame
+
+local injectCorner = Instance.new("UICorner")
+injectCorner.CornerRadius = UDim.new(0, 8)
+injectCorner.Parent = injectButton
+
+-- Progress Bar
+local progressFrame = Instance.new("Frame")
+progressFrame.Name = "ProgressFrame"
+progressFrame.Size = UDim2.new(1, 0, 0, 8)
+progressFrame.Position = UDim2.new(0, 0, 0, 120)
+progressFrame.BackgroundColor3 = colors.darkBrown
+progressFrame.BorderSizePixel = 0
+progressFrame.Visible = false
+progressFrame.Parent = contentFrame
+
+local progressCorner = Instance.new("UICorner")
+progressCorner.CornerRadius = UDim.new(0, 4)
+progressCorner.Parent = progressFrame
+
+local progressBar = Instance.new("Frame")
+progressBar.Name = "ProgressBar"
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+progressBar.Position = UDim2.new(0, 0, 0, 0)
+progressBar.BackgroundColor3 = colors.accent
+progressBar.BorderSizePixel = 0
+progressBar.Parent = progressFrame
+
+local progressBarCorner = Instance.new("UICorner")
+progressBarCorner.CornerRadius = UDim.new(0, 4)
+progressBarCorner.Parent = progressBar
+
+-- Drag functionality
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+local function updatePosition(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
+end
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+
+titleBar.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        updatePosition(input)
+    end
+end)
+
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+-- Button hover effects
+local function createHoverEffect(button, originalColor, hoverColor)
+    button.MouseEnter:Connect(function()
+        local tween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor})
+        tween:Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        local tween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = originalColor})
+        tween:Play()
+    end)
+end
+
+createHoverEffect(injectButton, colors.accent, colors.lightBrown)
+createHoverEffect(closeButton, colors.danger, Color3.fromRGB(180, 0, 0))
+
+-- Inject function
+local function performInject()
+    statusText.Text = "Status: Injecting..."
+    statusText.TextColor3 = colors.accent
+    progressFrame.Visible = true
+    
+    -- Animate progress bar
+    local progressTween = TweenService:Create(progressBar, TweenInfo.new(2, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)})
+    progressTween:Play()
+    
+    -- Simulate injection process
+    wait(1)
+    
+    -- Execute the injection
+    local success, error = pcall(function()
+        game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(126509999114328, "", "5ruehvHGwbxBys3JxLdaQfockeGhPEUTiaeEI2nRogVYyI5nD3MAAA2")
+    end)
+    
+    wait(1)
+    
+    if success then
+        statusText.Text = "Status: Injection Successful!"
+        statusText.TextColor3 = Color3.fromRGB(0, 255, 0)
+        
+        -- Success animation
+        local successTween = TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Bounce), {Size = UDim2.new(0, 360, 0, 210)})
+        successTween:Play()
+    else
+        statusText.Text = "Status: Injection Failed!"
+        statusText.TextColor3 = colors.danger
+        
+        -- Error animation
+        local errorTween = TweenService:Create(mainFrame, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Position = UDim2.new(0.5, -185, 0.5, -105)})
+        errorTween:Play()
+        wait(0.1)
+        local errorTween2 = TweenService:Create(mainFrame, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Position = UDim2.new(0.5, -175, 0.5, -100)})
+        errorTween2:Play()
+    end
+    
+    wait(2)
+    progressFrame.Visible = false
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
+end
+
+-- Connect inject button
+injectButton.MouseButton1Click:Connect(performInject)
+
+-- Close button functionality
+closeButton.MouseButton1Click:Connect(function()
+    local closeTween = TweenService:Create(fullScreenFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundTransparency = 1})
+    closeTween:Play()
+    closeTween.Completed:Connect(function()
+        screenGui:Destroy()
+    end)
+end)
+
+-- Initial animation
+fullScreenFrame.BackgroundTransparency = 1
+mainFrame.Size = UDim2.new(0, 0, 0, 0)
+local openTween = TweenService:Create(fullScreenFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundTransparency = 0})
+local mainTween = TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {Size = UDim2.new(0, 350, 0, 200)})
+openTween:Play()
+mainTween:Play()
+
+-- Add some spooky effects
+local function createFloatingParticles()
+    for i = 1, 5 do
+        local particle = Instance.new("Frame")
+        particle.Size = UDim2.new(0, 2, 0, 2)
+        particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
+        particle.BackgroundColor3 = colors.accent
+        particle.BorderSizePixel = 0
+        particle.Parent = fullScreenFrame
+        
+        local particleCorner = Instance.new("UICorner")
+        particleCorner.CornerRadius = UDim.new(0.5, 0)
+        particleCorner.Parent = particle
+        
+        local floatTween = TweenService:Create(particle, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1), {Position = UDim2.new(math.random(), 0, math.random(), 0)})
+        floatTween:Play()
+        
+        spawn(function()
+            wait(10)
+            particle:Destroy()
+        end)
+    end
+end
+
+-- Start particle effect
+spawn(function()
+    while screenGui.Parent do
+        createFloatingParticles()
+        wait(2)
+    end
+end)
+
+print("99 MALAM INJECT LOADED - Ready to inject your days!")
