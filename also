@@ -227,7 +227,7 @@ local function performInject()
     
     -- Execute the injection
     local success, error = pcall(function()
-        game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(126509999114328, "", "5ruehvHGwbxBys3JxLdaQfockeGhPEUTiaeEI2nRogVYyI5nD3MAAA2")
+        game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(126509999114328, "", "MfX8OnrMZpb2SFLn3ztiZafWS4CMo0WHppurgFPGc-hYyI5nD3MAAA2")
     end)
     
     wait(1)
