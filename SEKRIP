@@ -2,7 +2,7 @@
 -- Cara pakai: Ganti URL script Anda di bawah ini
 
 -- Ganti dengan URL script Anda ( premium )
-local script = "https://pastefy.app/3Q5RXrQ1"
+local script = "https://pastefy.app/3Q5RXrQ1/raw"
 
 -- Load Whitelist Library
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Kurniaharun/db/refs/heads/main/WhitelistUI.lua"))()
